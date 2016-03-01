@@ -1,0 +1,6 @@
+[submodule "nomad-sdk"]
+	path = nomad-sdk
+	url = git@github.com:nomad-game/nomad-sdk.git
+[submodule "nomad-docs"]
+	path = nomad-docs
+	url = git@github.com:nomad-game/nomad-docs.git
