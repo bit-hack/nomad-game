@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <array>
 
 #include "window.h"
 #include "../../nomad-util/source/sdl.h"
@@ -27,7 +28,15 @@ void blit2x(const uint32_t *src, const uint32_t src_width,
 } // namespace {}
 
 struct window_t::detail_t {
-    detail_t() : surface_(nullptr) {}
+    detail_t()
+        : surface_(nullptr)
+        , num_layers_(0)
+    {
+        memset(layers_.data(), 0, sizeof(layers_[0])*layers_.size());
+    }
+
+    std::array<window_layer_t*, 32> layers_;
+    size_t num_layers_;
 
     SDL_Surface *surface_;
 };
@@ -65,12 +74,48 @@ bool window_t::tick() {
         }
     }
 
+    // process all layers
+    for (size_t i = 0; detail_->layers_[i]; ++i)
+        if (detail_->layers_[i]->visible_)
+            detail_->layers_[i]->on_draw(this);
+
     // blit our surface to the screen
     blit2x(draw_.pixels_, draw_.width_, draw_.height_,
            (uint32_t *)detail_->surface_->pixels);
-
     SDL_Flip(detail_->surface_);
 
+    // dont max out the cpu
     SDL_Delay(1);
     return true;
+}
+
+void window_t::add_layer(window_layer_t * layer) {
+    // insertion sort
+    auto & layers = detail_->layers_;
+    // itterate over entire list
+    window_layer_t * hand = layer;
+    for (size_t i = 0; ; ++i) {
+        // dont add to a full list
+        assert(i<layers.size()-1);
+        // end of array
+        if (!layers[i]) {
+            layers[i] = hand;
+            break;
+        }
+        else {
+            if (hand->z_<layers[i]->z_) {
+                std::swap(hand, layers[i]);
+            }
+        }
+    }
+    ++detail_->num_layers_;
+}
+
+void window_t::dispatch_event(const window_event_t & event) {
+    size_t index = detail_->num_layers_;
+    if (index) {
+        do {
+            detail_->layers_[--index]->on_event(this, event);
+        } while (index);
+    }
 }
