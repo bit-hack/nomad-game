@@ -25,6 +25,23 @@ void blit2x(const uint32_t *src, const uint32_t src_width,
         dst += dst_width * 2;
     }
 }
+
+uint8_t key_code_conv(SDLKey sym) {
+    switch (sym) {
+    case (SDLK_ESCAPE) : return e_key_esc;
+    case (SDLK_UP) : return e_key_up;
+    case (SDLK_DOWN) : return e_key_down;
+    case (SDLK_LEFT) : return e_key_left;
+    case (SDLK_RIGHT) : return e_key_right;
+    case (SDLK_LCTRL) : return e_key_lctrl;
+    case (SDLK_RCTRL) : return e_key_rctrl;
+    case (SDLK_LSHIFT) : return e_key_lshift;
+    case (SDLK_RSHIFT) : return e_key_rshift;
+    default:
+        if (sym<=0x7f)      return uint8_t(sym);
+        else                return e_key_eof;
+    }
+}
 } // namespace {}
 
 struct window_t::detail_t {
@@ -66,12 +83,35 @@ void window_t::free() {
 }
 
 bool window_t::tick() {
+
     // poll all of the window events
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+        switch (event.type) {
+        case (SDL_QUIT):
             return false;
+
+        case (SDL_KEYDOWN):
+        case (SDL_KEYUP) : {
+                window_event_t::key_t k;
+                k.down_ = event.type==SDL_KEYDOWN;
+                k.key_ = key_code_conv(event.key.keysym.sym);
+                window_event_t e;
+                e.type_ = k.type();
+                e.key_ = &k;
+                dispatch_event(e);
+            }
         }
+    }
+
+    // mouse event is always dispatched
+    {
+        window_event_t::mouse_t m;
+        uint8_t b = SDL_GetMouseState(&m.x, &m.y);
+        window_event_t e;
+        e.mouse_ = &m;
+        e.type_ = m.type();
+        dispatch_event(e);
     }
 
     // process all layers

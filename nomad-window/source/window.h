@@ -24,12 +24,43 @@ struct window_draw_t {
     void fill(uint32_t rgb);
 };
 
-//
-struct window_event_t {
-
+// keycode table
+enum {
+    e_key_eof   = 0x0,
+    // 0x00 -> 0x7f is ascii
+    e_key_esc   = 0x80,
+    e_key_up    ,
+    e_key_down  ,
+    e_key_left  ,
+    e_key_right ,
+    e_key_lctrl ,
+    e_key_rctrl ,
+    e_key_lshift,
+    e_key_rshift,
 };
 
-//
+// encapsulates some window input event
+struct window_event_t {
+
+    struct mouse_t {
+        int32_t x, y;
+        static uint32_t type() { return 0; }
+    };
+
+    struct key_t {
+        bool down_;
+        uint8_t key_;
+        static uint32_t type() { return 1; }
+    };
+
+    uint32_t type_;
+    union {
+        mouse_t * mouse_;
+        key_t * key_;
+    };
+};
+
+// input and drawing routines can be grouped and stacked as layers
 struct window_layer_t {
 
     const uint32_t z_;
@@ -41,10 +72,10 @@ struct window_layer_t {
     {
     }
 
-    // bottom to top draw ordering.
+    // bottom to top draw ordering
     virtual void on_draw(struct window_t *) = 0;
 
-    // top to bottom event ordering, return true for handled event.
+    // top to bottom event ordering, return true for handled event
     virtual bool on_event(struct window_t *, const window_event_t & event) = 0;
 };
 
