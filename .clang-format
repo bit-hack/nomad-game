@@ -1,3 +1,40 @@
-BasedOnStyle: LLVM
-IndentWidth: 4
-ColumnLimit: 80
+﻿---
+BasedOnStyle: Chromium
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
+AlignEscapedNewlinesLeft: 'false'
+AlignOperands: 'true'
+AlignTrailingComments: 'true'
+AllowAllParametersOfDeclarationOnNextLine: 'true'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: 'true'
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakTemplateDeclarations: 'true'
+BinPackArguments: 'true'
+BinPackParameters: 'true'
+BreakBeforeBraces: Linux
+BreakConstructorInitializersBeforeComma: 'true'
+ColumnLimit: '80'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
+Cpp11BracedListStyle: 'true'
+IndentCaseLabels: 'false'
+IndentWidth: '4'
+KeepEmptyLinesAtTheStartOfBlocks: 'true'
+Language: Cpp
+PointerAlignment: Middle
+SpaceAfterCStyleCast: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInParentheses: 'false'
+SpacesInSquareBrackets: 'false'
+Standard: Cpp11
+UseTab: Never
+
+...
