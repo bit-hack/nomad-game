@@ -10,6 +10,8 @@
 #include "../../nomad-window/source/window.h"
 
 int main(int argc, const char **args) {
+    log_t::inst().enable(log_t::e_log_all);
+
     // init the SDL library
     if (SDL_Init(SDL_INIT_VIDEO)) {
         LOG(log_t::e_log_nomad, "SDL_Init failed");

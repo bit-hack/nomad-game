@@ -37,6 +37,8 @@ enum {
     e_key_rctrl ,
     e_key_lshift,
     e_key_rshift,
+    e_key_lalt  ,
+    e_key_ralt  ,
 };
 
 // encapsulates some window input event

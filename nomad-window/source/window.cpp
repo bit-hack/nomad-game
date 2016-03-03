@@ -29,15 +29,17 @@ void blit2x(const uint32_t *src, const uint32_t src_width,
 
 uint8_t key_code_conv(SDLKey sym) {
     switch (sym) {
-    case (SDLK_ESCAPE) : return e_key_esc;
-    case (SDLK_UP) : return e_key_up;
-    case (SDLK_DOWN) : return e_key_down;
-    case (SDLK_LEFT) : return e_key_left;
-    case (SDLK_RIGHT) : return e_key_right;
-    case (SDLK_LCTRL) : return e_key_lctrl;
-    case (SDLK_RCTRL) : return e_key_rctrl;
-    case (SDLK_LSHIFT) : return e_key_lshift;
-    case (SDLK_RSHIFT) : return e_key_rshift;
+    case (SDLK_ESCAPE) :    return e_key_esc;
+    case (SDLK_UP) :        return e_key_up;
+    case (SDLK_DOWN) :      return e_key_down;
+    case (SDLK_LEFT) :      return e_key_left;
+    case (SDLK_RIGHT) :     return e_key_right;
+    case (SDLK_LCTRL) :     return e_key_lctrl;
+    case (SDLK_RCTRL) :     return e_key_rctrl;
+    case (SDLK_LSHIFT) :    return e_key_lshift;
+    case (SDLK_RSHIFT) :    return e_key_rshift;
+    case (SDLK_LALT) :      return e_key_lalt;
+    case (SDLK_RALT) :      return e_key_ralt;
     default:
         if (sym<=0x7f)      return uint8_t(sym);
         else                return e_key_eof;
@@ -59,7 +61,9 @@ struct window_t::detail_t {
     SDL_Surface *surface_;
 };
 
-window_t::window_t() : detail_(new detail_t) {}
+window_t::window_t()
+    : detail_(new detail_t) {
+}
 
 bool window_t::init(uint32_t width, uint32_t height) {
     SDL_WM_SetCaption("Nomad", nullptr);
@@ -91,11 +95,11 @@ bool window_t::tick() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-        case (SDL_QUIT):
+            case (SDL_QUIT):
             return false;
 
-        case (SDL_KEYDOWN):
-        case (SDL_KEYUP) : {
+            case (SDL_KEYDOWN):
+            case (SDL_KEYUP) : {
                 window_event_t::key_t k;
                 k.down_ = event.type==SDL_KEYDOWN;
                 k.key_ = key_code_conv(event.key.keysym.sym);
@@ -119,6 +123,8 @@ bool window_t::tick() {
 
     // process all layers
     for (window_layer_t * layer : detail_->layers_) {
+        if (!layer)
+            break;
         if (layer->visible_)
             layer->on_draw(this);
     }
@@ -163,8 +169,12 @@ void window_t::dispatch_event(const window_event_t & event) {
         do {
             window_layer_t * layer = detail_->layers_[--index];
             assert(layer);
-            if (layer->visible_)
-                layer->on_event(this, event);
+            if (layer->visible_) {
+                if (layer->on_event(this, event)) {
+                    // input was consumed and should not propagate
+                    break;
+                }
+            }
         } while (index);
     }
 }

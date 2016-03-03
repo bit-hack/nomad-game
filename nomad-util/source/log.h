@@ -15,7 +15,7 @@ struct log_t {
         e_log_game      = 0x10,
         e_log_player    = 0x20,
         e_log_ai        = 0x40,
-        e_always        = 0xffff
+        e_log_all       = 0xffff
     };
 
     void redirect(FILE * fd) {
