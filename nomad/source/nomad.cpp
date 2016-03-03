@@ -86,14 +86,13 @@ struct nomad_t {
         players_.push_back(player);
     }
 
-    //
+    // 
     void on_player_state(const event::player_state_t &e) {
         LOGF(log_t::e_log_nomad, "%d - %16s", e.uuid_, e.nick_);
     }
 
     // when we receive a packet from the event relay
     void on_packet(const nomad::event_t &e) {
-        LOGF(log_t::e_log_nomad, "%d", e.header_.type_);
 
         // other modules may like to know about frames
         switch (e.header_.type_) {
@@ -109,6 +108,9 @@ struct nomad_t {
         case (event::e_player_state):
             on_player_state(e.get<event::player_state_t>());
             return;
+
+        default:
+            LOGF(log_t::e_log_nomad, "packet: %d", e.header_.type_);
         }
 
         // pass all packets to the game module

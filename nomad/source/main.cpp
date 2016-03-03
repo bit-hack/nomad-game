@@ -53,6 +53,7 @@ int main(int argc, const char **args) {
     nomad_free(nomad);
     // kill the game window
     window_t::inst().free();
+
     // kill SDL library
     SDL_Quit();
 

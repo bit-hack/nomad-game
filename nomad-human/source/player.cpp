@@ -33,6 +33,11 @@ struct player_human_t: public nomad::player_t {
 
     player_human_layer_t layer_;
 
+    struct {
+        std::array<char, 16> name_;
+        bool ready_;
+    } info_;
+
     // ctor
     player_human_t(nomad::game_view_t *view,
                    nomad::stream_t &stream,
@@ -40,8 +45,21 @@ struct player_human_t: public nomad::player_t {
         : player_t(view, stream, uuid)
         , layer_(this)
     {
+        // setup player state
+        info_.ready_ = false;
+        memcpy(info_.name_.data(), "human", 6);
+        send_player_state();
         // add the human player IO layer
         window_t::inst().add_layer(&layer_);
+    }
+
+    // 
+    void send_player_state() {
+        event::player_state_t e;
+        e.uuid_ = uuid_;
+        e.ready_ = info_.ready_;
+        memcpy(e.nick_, info_.name_.data(), info_.name_.size());
+        stream_.send(e, uuid_);
     }
 
     // receipt of an cue event from game_t
@@ -63,14 +81,11 @@ bool player_human_layer_t::on_event(window_t *, const window_event_t & event) {
 
         const uint8_t key = event.key_->key_;
 
-        if (key=='r') {
-            // the AI is always good to go
-            event::player_state_t e = {
-                player_->uuid_,
-                true,
-                {"human"}
-            };
-            player_->stream_.send(e, player_->uuid_);
+        if (key==e_key_f1 && event.key_->down_) {
+            LOGF(log_t::e_log_player, "set player:%d ready state:%d",
+                player_->uuid_, player_->info_.ready_);
+            player_->info_.ready_ ^= true;
+            player_->send_player_state();
         }
 
         if (key<=0x7f) {

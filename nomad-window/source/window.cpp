@@ -40,6 +40,9 @@ uint8_t key_code_conv(SDLKey sym) {
     case (SDLK_RSHIFT) :    return e_key_rshift;
     case (SDLK_LALT) :      return e_key_lalt;
     case (SDLK_RALT) :      return e_key_ralt;
+    case (SDLK_F1):         return e_key_f1;
+    case (SDLK_F2):         return e_key_f2;
+    case (SDLK_F3):         return e_key_f3;
     default:
         if (sym<=0x7f)      return uint8_t(sym);
         else                return e_key_eof;

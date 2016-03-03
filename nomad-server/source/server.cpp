@@ -60,7 +60,7 @@ struct server_t {
     bool begun_;
 
     void reset(uint16_t port) {
-        active_ = true;
+        active_ = false;
         port_   = port;
         uuid_   = 0;
         begun_  = false;
@@ -76,7 +76,11 @@ struct server_t {
     bool start(uint16_t port) {
         assert(!thread_);
         reset(port);
+        active_ = false;
         thread_.reset(new std::thread(trampoline, this));
+        while (!active_) {
+            std::this_thread::yield();
+        }
         return true;
     }
 
@@ -289,6 +293,7 @@ struct server_t {
         SOCKET server = make_listen_sock();
         LOG(log_t::e_log_server, "server listening");
 
+        active_ = true;
         while (active_ /* thread is alive */) {
 
             // give time back to the OS
