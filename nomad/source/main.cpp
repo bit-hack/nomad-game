@@ -12,7 +12,7 @@
 int main(int argc, const char **args) {
     // init the SDL library
     if (SDL_Init(SDL_INIT_VIDEO)) {
-        LOG("SDL_Init failed");
+        LOG(log_t::e_log_nomad, "SDL_Init failed");
         return -1;
     }
 
@@ -27,18 +27,18 @@ int main(int argc, const char **args) {
     // create the game code instance
     nomad::game_t *game = create_game_nomad();
     if (!game) {
-        LOG("create_game_nomad failed");
+        LOG(log_t::e_log_nomad, "create_game_nomad failed");
         return -1;
     }
     // create an instance of nomad
     nomad_t *nomad = nomad_init(game, args[1], host);
     if (!nomad) {
-        LOG("nomad_init failed")
+        LOG(log_t::e_log_nomad, "nomad_init failed")
         return -1;
     }
     // create the game window
     if (!window_t::inst().init(320, 240)) {
-        LOG("window_t::init failed");
+        LOG(log_t::e_log_nomad, "window_t::init failed");
         return -1;
     }
     // add a human player

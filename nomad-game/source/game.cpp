@@ -18,7 +18,7 @@ struct nomad_game_t : public nomad::game_t {
     }
 
     void on_begin(const event::game_begin_t & e) {
-        LOGF("game begin { seed=%u }", e.seed_);
+        LOGF(log_t::e_log_game, "game begin { seed=%u }", e.seed_);
     }
 
     virtual void recv(const nomad::event_t &e) override {

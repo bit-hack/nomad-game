@@ -38,8 +38,10 @@ bool net_init() {
 #if defined(WIN32)
     // init win sock library
     memset(&g_wsa, 0, sizeof(WSADATA));
-    if (WSAStartup(MAKEWORD(2, 2), &g_wsa))
+    if (WSAStartup(MAKEWORD(2, 2), &g_wsa)) {
+        LOGF(log_t::e_log_net, "WSAStartup() error");
         return false;
+    }
 #endif
     return true;
 }
@@ -104,6 +106,7 @@ bool client_t::recv(nomad::event_header_t & hdr,
     // read header
     int r = ::recv(socket_, (char *)&hdr, c_hdr_size, MSG_WAITALL);
     if (r==SOCKET_ERROR||r!=c_hdr_size) {
+        LOGF(log_t::e_log_net, "socket recv() error");
         return !(error_ = true);
     }
 
@@ -114,6 +117,7 @@ bool client_t::recv(nomad::event_header_t & hdr,
         // read body
         r = ::recv(socket_, (char *)dst, hdr.size_, MSG_WAITALL);
         if (r==SOCKET_ERROR||r!=hdr.size_) {
+            LOGF(log_t::e_log_net, "socket recv() error");
             return !(error_ = true);
         }
         // validate body with checksum
@@ -137,23 +141,27 @@ bool client_t::send(const void * src, const size_t size, const uint32_t type) {
 
     // send off the packet header
     int r = ::send(socket_, (char *)&hdr, sizeof(nomad::event_header_t), 0);
-    if (r==SOCKET_ERROR||r!=sizeof(hdr))
+    if (r==SOCKET_ERROR||r!=sizeof(hdr)) {
+        LOGF(log_t::e_log_net, "socket send() error");
         return !(error_ = true);
+    }
 
     // if the packet has a body
     if (hdr.size_) {
         assert(src);
         // send off the packet body
         r = ::send(socket_, (char *)src, int(size), 0);
-        if (r==SOCKET_ERROR||r!=hdr.size_)
-            return !(error_=true);
+        if (r==SOCKET_ERROR||r!=hdr.size_) {
+            LOGF(log_t::e_log_net, "socket send() error");
+            return !(error_ = true);
+        }
     }
 
     return !error_;
 }
 
 bool client_t::connect(const char * address) {
-    LOGF("connect to: %s", address);
+    LOGF(log_t::e_log_net, "connect to: %s", address);
 
     uint8_t ip[4];
     uint16_t port = 0;
@@ -178,23 +186,25 @@ bool client_t::connect(const uint8_t ip[4],
     addr.sin_port = htons(port);
 
     socket_ = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_==INVALID_SOCKET)
+    if (socket_==INVALID_SOCKET) {
+        LOGF(log_t::e_log_net, "socket() error");
         return !(error_ = true);
+    }
 
     {
         timeval timeout = {8, 0};
         if (setsockopt(socket_, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                        sizeof(timeval))) {
-            LOG("unable to set timeout");
+            LOG(log_t::e_log_net, "unable to set timeout");
         }
     }
 
     int res = ::connect((SOCKET)socket_, (sockaddr *)&addr, sizeof(addr));
     if (res==SOCKET_ERROR) {
-        LOG("failed to connect");
+        LOG(log_t::e_log_net, "socket connect() failed");
         return !(error_ = true);
     }
-    LOG("connected");
+    LOG(log_t::e_log_net, "socket connected");
     return !error_;
 }
 
@@ -212,16 +222,20 @@ bool client_t::send(const nomad::event_t & src) {
 
     // send off the packet header
     int r = ::send(socket_, (char *)&hdr, sizeof(hdr), 0);
-    if (r==SOCKET_ERROR||r!=sizeof(hdr))
+    if (r==SOCKET_ERROR||r!=sizeof(hdr)) {
+        LOGF(log_t::e_log_net, "socket send() error");
         return !(error_ = true);
+    }
 
     // if the packet has a body
     if (hdr.size_) {
         assert(src.body_.data());
         // send off the packet body
         r = ::send(socket_, (char *)src.body_.data(), hdr.size_, 0);
-        if (r==SOCKET_ERROR||r!=hdr.size_)
+        if (r==SOCKET_ERROR||r!=hdr.size_) {
+            LOGF(log_t::e_log_net, "socket send() error");
             return !(error_ = true);
+        }
     }
 
     return !error_;

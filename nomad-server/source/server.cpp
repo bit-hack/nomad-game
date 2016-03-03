@@ -142,7 +142,7 @@ struct server_t {
         // book keeping for new client
         {
             // create a new client object
-            LOG("new client");
+            LOG(log_t::e_log_server, "new client");
             peer_t c = peer_t(net::net_socket_t(sock));
             clients_.push_back(c);
             // send snapshot of all players
@@ -178,7 +178,7 @@ struct server_t {
     // a client has requested a uuid for a new player.  We need to send one
     // back to them.
     void on_request_uuid(peer_t &client) {
-        LOG("");
+        LOG(log_t::e_log_server, "");
 
         // if the game has begun then no new players may be created
         if (begun_)
@@ -204,7 +204,7 @@ struct server_t {
 
     // a client has send us a player state.
     void on_player_state(peer_t &client, const event::player_state_t &e) {
-        LOG("");
+        LOG(log_t::e_log_server, "");
 
         // only this client should be responsible for telling us that its
         // players are ready so only need look for players it serves.
@@ -217,7 +217,7 @@ struct server_t {
             }
         }
 
-        LOG("unknown player uuid");
+        LOG(log_t::e_log_server, "unknown player uuid");
     }
 
     // when a player toggles their ready status we run this function to check
@@ -287,7 +287,7 @@ struct server_t {
     // thread: accept incoming socket connections
     void thread_func() {
         SOCKET server = make_listen_sock();
-        LOG("server listening");
+        LOG(log_t::e_log_server, "server listening");
 
         while (active_ /* thread is alive */) {
 

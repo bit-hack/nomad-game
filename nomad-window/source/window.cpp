@@ -3,6 +3,7 @@
 
 #include "window.h"
 #include "../../nomad-util/source/sdl.h"
+#include "../../nomad-util/source/log.h"
 
 namespace {
 
@@ -65,8 +66,10 @@ bool window_t::init(uint32_t width, uint32_t height) {
 
     // create a window at 2x scale
     SDL_Surface *surface = SDL_SetVideoMode(width * 2, height * 2, 32, 0);
-    if (!surface)
+    if (!surface) {
+        LOG(log_t::e_log_window, "SDL_SetVideoMode() error");
         return false;
+    }
 
     detail_->surface_ = surface;
 
@@ -115,9 +118,10 @@ bool window_t::tick() {
     }
 
     // process all layers
-    for (size_t i = 0; detail_->layers_[i]; ++i)
-        if (detail_->layers_[i]->visible_)
-            detail_->layers_[i]->on_draw(this);
+    for (window_layer_t * layer : detail_->layers_) {
+        if (layer->visible_)
+            layer->on_draw(this);
+    }
 
     // blit our surface to the screen
     blit2x(draw_.pixels_, draw_.width_, draw_.height_,
@@ -130,9 +134,11 @@ bool window_t::tick() {
 }
 
 void window_t::add_layer(window_layer_t * layer) {
+    LOG(log_t::e_log_window, "");
+
     // insertion sort
     auto & layers = detail_->layers_;
-    // itterate over entire list
+    // iterate over entire list
     window_layer_t * hand = layer;
     for (size_t i = 0; ; ++i) {
         // dont add to a full list
@@ -155,7 +161,10 @@ void window_t::dispatch_event(const window_event_t & event) {
     size_t index = detail_->num_layers_;
     if (index) {
         do {
-            detail_->layers_[--index]->on_event(this, event);
+            window_layer_t * layer = detail_->layers_[--index];
+            assert(layer);
+            if (layer->visible_)
+                layer->on_event(this, event);
         } while (index);
     }
 }

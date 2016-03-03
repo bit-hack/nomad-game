@@ -58,7 +58,7 @@ struct nomad_t {
 
     // when there is a frame event received
     void on_frame() {
-        LOG("frame");
+        LOG(log_t::e_log_nomad, "frame");
 
         // run frame callback for all players
         for (nomad::player_t *player : players_) {
@@ -75,7 +75,7 @@ struct nomad_t {
 
     // we have received a new uuid for a pending new player
     void on_receive_uuid(const event::receive_uuid_t &e) {
-        LOGF("%d", e.uuid_);
+        LOGF(log_t::e_log_nomad, "%d", e.uuid_);
 
         nomad::player_factory_t factory = pending_.pop();
         assert(factory);
@@ -88,12 +88,12 @@ struct nomad_t {
 
     //
     void on_player_state(const event::player_state_t &e) {
-        LOGF("%d - %16s", e.uuid_, e.nick_);
+        LOGF(log_t::e_log_nomad, "%d - %16s", e.uuid_, e.nick_);
     }
 
     // when we receive a packet from the event relay
     void on_packet(const nomad::event_t &e) {
-        LOGF("%d", e.header_.type_);
+        LOGF(log_t::e_log_nomad, "%d", e.header_.type_);
 
         // other modules may like to know about frames
         switch (e.header_.type_) {
@@ -166,31 +166,31 @@ struct nomad_t {
 
     // add a player to the current game
     void add_player(nomad::player_factory_t factory) {
-        LOG("");
+        LOG(log_t::e_log_nomad, "");
         pending_.push(factory);
         stream_->send(nullptr, 0, event::e_request_uuid, 0);
     }
 
     bool connect(const char *address, bool host) {
-        LOG("");
+        LOG(log_t::e_log_nomad, "");
 
         if (!net::net_init()) {
-            LOG("unable to init netcode");
+            LOG(log_t::e_log_nomad, "unable to init netcode");
             return false;
         }
         // start the server
         if (host) {
-            LOG("starting server");
+            LOG(log_t::e_log_nomad, "starting server");
             server_ = server::server_start(1234);
             if (!server_) {
-                LOG("unable to start relay");
+                LOG(log_t::e_log_nomad, "unable to start relay");
                 return false;
             }
             // todo: wait for server start (blocking)
         }
         // connect a client to the game relay
         if (!client_.connect(address)) {
-            LOG("unable to connect to relay");
+            LOG(log_t::e_log_nomad, "unable to connect to relay");
             return false;
         }
         // success
