@@ -107,6 +107,14 @@ void player_human_t::on_recv(const nomad::cue_t & cue)
 
 void player_human_t::on_tick(float delta)
 {
+    std::vector<const nomad::object_t *> found_;
+    {
+        geom::rect2i_t area{0, 0, 512, 512};
+        view_->query_obj_rect_map(area, found_);
+    }
+    for (const nomad::object_t * obj : found_) {
+        window_t::draw().circle(obj->pos_[1], 8, 0x113399);
+    }
 }
 
 void player_human_t::on_frame()

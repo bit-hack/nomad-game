@@ -1,6 +1,8 @@
 #include "window.h"
 
-void window_draw_t::plot(const point_t & p, uint32_t rgb)
+using namespace geom;
+
+void window_draw_t::plot(const vec2i_t & p, uint32_t rgb)
 {
     uint32_t * dst = pixels_;
     int32_t    x = p.x, y = p.y;
@@ -8,7 +10,7 @@ void window_draw_t::plot(const point_t & p, uint32_t rgb)
         dst[y * width_ + x] = rgb;
 }
 
-void window_draw_t::circle(const point_t & p, int32_t radius, uint32_t rgb)
+void window_draw_t::circle(const vec2i_t & p, int32_t radius, uint32_t rgb)
 {
     const int32_t x0 = p.x, y0 = p.y;
 
@@ -16,14 +18,14 @@ void window_draw_t::circle(const point_t & p, int32_t radius, uint32_t rgb)
     int32_t d = 1 - x;
 
     while (y <= x) {
-        plot(point_t{x + x0, y + y0}, rgb);
-        plot(point_t{y + x0, x + y0}, rgb);
-        plot(point_t{-x + x0, y + y0}, rgb);
-        plot(point_t{-y + x0, x + y0}, rgb);
-        plot(point_t{-x + x0, -y + y0}, rgb);
-        plot(point_t{-y + x0, -x + y0}, rgb);
-        plot(point_t{x + x0, -y + y0}, rgb);
-        plot(point_t{y + x0, -x + y0}, rgb);
+        plot(vec2i_t{x + x0, y + y0}, rgb);
+        plot(vec2i_t{y + x0, x + y0}, rgb);
+        plot(vec2i_t{-x + x0, y + y0}, rgb);
+        plot(vec2i_t{-y + x0, x + y0}, rgb);
+        plot(vec2i_t{-x + x0, -y + y0}, rgb);
+        plot(vec2i_t{-y + x0, -x + y0}, rgb);
+        plot(vec2i_t{x + x0, -y + y0}, rgb);
+        plot(vec2i_t{y + x0, -x + y0}, rgb);
         y++;
         d += (d <= 0) ? (2 * y + 1) : (2 * (y - (--x)) + 1);
     }

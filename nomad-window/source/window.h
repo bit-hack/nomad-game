@@ -3,19 +3,7 @@
 #include <assert.h>
 #include <memory>
 
-struct point_t {
-    point_t()
-    {
-    }
-
-    point_t(int32_t a, int32_t b)
-        : x(a)
-        , y(b)
-    {
-    }
-
-    int32_t x, y;
-};
+#include "../../nomad-util/source/geometric.h"
 
 // handles all window drawing operations
 struct window_draw_t {
@@ -23,9 +11,9 @@ struct window_draw_t {
     int32_t    width_;
     int32_t    height_;
 
-    void circle(const point_t & pos, int32_t radius, uint32_t rgb);
+    void circle(const geom::vec2i_t & pos, int32_t radius, uint32_t rgb);
 
-    void plot(const point_t & p, uint32_t rgb);
+    void plot(const geom::vec2i_t & p, uint32_t rgb);
 
     void fill(uint32_t rgb);
 };
