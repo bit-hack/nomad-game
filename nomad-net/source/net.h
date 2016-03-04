@@ -5,7 +5,8 @@
 
 #include "../../nomad-sdk/source/nomad.h"
 
-namespace net {
+namespace net
+{
 
 // new net instance
 bool net_init();
@@ -19,10 +20,9 @@ typedef unsigned long long net_socket_t;
 typedef int net_socket_t;
 #endif
 
-struct client_t
-{
+struct client_t {
     net_socket_t socket_;
-    bool error_;
+    bool         error_;
 
     client_t();
     client_t(net_socket_t socket);
@@ -33,13 +33,9 @@ struct client_t
 
     bool pending();
 
-    bool recv(nomad::event_header_t & hdr,
-              void * dst,
-              const size_t max_size);
+    bool recv(nomad::event_header_t & hdr, void * dst, const size_t max_size);
 
-    bool send(const void * src,
-              const size_t size,
-              const uint32_t type);
+    bool send(const void * src, const size_t size, const uint32_t type);
 
     bool send(const nomad::event_t & src);
 
@@ -48,13 +44,15 @@ struct client_t
     bool connect(const uint8_t ip[4], const uint16_t port);
 
     template <typename type_t>
-    bool send(const type_t & src) {
-        return send((const void*)&src, sizeof(type_t), type_t::type());
+    bool send(const type_t & src)
+    {
+        return send((const void *)&src, sizeof(type_t), type_t::type());
     }
 
-    bool recv(nomad::event_t & out) {
+    bool recv(nomad::event_t & out)
+    {
         return recv(out.header_, out.body_.data(), out.body_.size());
     }
 };
 
-} // namespace net
+}  // namespace net

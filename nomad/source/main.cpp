@@ -9,7 +9,8 @@
 #include "../../nomad-util/source/log.h"
 #include "../../nomad-window/source/window.h"
 
-int main(int argc, const char **args) {
+int main(int argc, const char ** args)
+{
     log_t::inst().enable(log_t::e_log_all);
 
     // init the SDL library
@@ -27,13 +28,13 @@ int main(int argc, const char **args) {
     bool host = (strncmp(args[2], "true", 4) == 0);
 
     // create the game code instance
-    nomad::game_t *game = create_game_nomad();
+    nomad::game_t * game = create_game_nomad();
     if (!game) {
         LOG(log_t::e_log_nomad, "create_game_nomad failed");
         return -1;
     }
     // create an instance of nomad
-    nomad_t *nomad = nomad_init(game, args[1], host);
+    nomad_t * nomad = nomad_init(game, args[1], host);
     if (!nomad) {
         LOG(log_t::e_log_nomad, "nomad_init failed")
         return -1;
