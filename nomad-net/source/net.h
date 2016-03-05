@@ -3,8 +3,8 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "../../nomad-sdk/source/game.h"
-#include "../../nomad-sdk/source/events.h"
+#include "../../nomad-headers/source/game.h"
+#include "../../nomad-headers/source/events.h"
 
 namespace net
 {

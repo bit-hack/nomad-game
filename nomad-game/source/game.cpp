@@ -1,7 +1,7 @@
 #include "game.h"
-#include "../../nomad-sdk/source/game.h"
-#include "../../nomad-sdk/source/events.h"
-#include "../../nomad-sdk/source/objects.h"
+#include "../../nomad-headers/source/game.h"
+#include "../../nomad-headers/source/events.h"
+#include "../../nomad-headers/source/objects.h"
 #include "../../nomad-util/source/log.h"
 
 struct controller_t {

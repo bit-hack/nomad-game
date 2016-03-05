@@ -8,7 +8,7 @@ endif()
 find_package(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
 
-add_subdirectory(nomad-sdk)
+add_subdirectory(nomad-headers)
 add_subdirectory(nomad-window)
 add_subdirectory(nomad-util)
 add_subdirectory(nomad-net)

@@ -11,7 +11,7 @@
 #include "../../nomad-util/source/sdl.h"
 #include "../../nomad-util/source/socket.h"
 #include "../../nomad-util/source/log.h"
-#include "../../nomad-sdk/source/events.h"
+#include "../../nomad-headers/source/events.h"
 
 namespace server
 {

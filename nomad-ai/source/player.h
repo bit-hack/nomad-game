@@ -1,6 +1,6 @@
 #pragma once
-#include "../../nomad-sdk/source/game.h"
-#include "../../nomad-sdk/source/player.h"
+#include "../../nomad-headers/source/game.h"
+#include "../../nomad-headers/source/player.h"
 
 // computer player factory function
 player::player_t * create_player_ai(

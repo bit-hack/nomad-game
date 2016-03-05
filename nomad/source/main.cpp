@@ -1,7 +1,7 @@
 #include <assert.h>
 
 #include "../../nomad-util/source/sdl.h"
-#include "../../nomad-sdk/source/game.h"
+#include "../../nomad-headers/source/game.h"
 #include "../../nomad/source/nomad.h"
 #include "../../nomad-human/source/player.h"
 #include "../../nomad-ai/source/player.h"

@@ -1,6 +1,6 @@
 #include "../../nomad-net/source/net.h"
-#include "../../nomad-sdk/source/events.h"
-#include "../../nomad-sdk/source/game.h"
+#include "../../nomad-headers/source/events.h"
+#include "../../nomad-headers/source/game.h"
 #include "../../nomad-util/source/log.h"
 #include "player.h"
 
