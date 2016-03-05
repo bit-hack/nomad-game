@@ -4,9 +4,9 @@
 
 #include "nomad.h"
 
-#include "../../nomad-net/source/net.h"
 #include "../../nomad-sdk/source/events.h"
-#include "../../nomad-sdk/source/nomad.h"
+#include "../../nomad-sdk/source/game.h"
+#include "../../nomad-net/source/net.h"
 #include "../../nomad-util/source/log.h"
 #include "../../nomad-util/source/queue.h"
 #include "../../nomad-util/source/timer.h"
@@ -18,7 +18,7 @@ typedef nm_timer_t<uint32_t, SDL_GetTicks> sdl_timer_t;
 
 // the stream object passed to local players to direct events into the global
 // event client.
-struct nomad_stream_t : public nomad::stream_t {
+struct nomad_stream_t : public player::stream_t {
     struct nomad_t & nomad_;
     bool             error_;
 
@@ -33,34 +33,34 @@ struct nomad_stream_t : public nomad::stream_t {
         return !error_;
     }
 
-    virtual void send(const nomad::event_t & e) override;
+    virtual void send(const event::event_t & e) override;
 
     virtual void send(
         const void * src, const size_t size, const uint16_t type,
-        const nomad::player_uuid_t uuid) override;
+        const uuid::player_uuid_t uuid) override;
 };
 
 struct nomad_t {
     // the game module
-    nomad::game_t * game_;
+    game::game_t * game_;
     // the event client connected to a event relay
     net::client_t client_;
     // the event relay if we are hosting
     server::server_t * server_;
     // list of all local players connected to our game_t
     // todo: replace with std::map<nomad_uuid_t, nomad::player_t*>
-    std::vector<nomad::player_t *> players_;
+    std::vector<player::player_t *> players_;
     // write only event stream from player_t to relay
-    std::unique_ptr<nomad::stream_t> stream_;
+    std::unique_ptr<player::stream_t> stream_;
     // true while the game is running
     bool active_;
     // players that have been added but are waiting for a uuid
-    small_queue_t<nomad::player_factory_t, 8> pending_;
+    small_queue_t<player::player_factory_t, 8> pending_;
     // the frame timer
     sdl_timer_t timer_;
 
     // ctor
-    nomad_t(nomad::game_t * game)
+    nomad_t(game::game_t * game)
         : game_(game)
         , client_()
         , server_(nullptr)
@@ -77,7 +77,7 @@ struct nomad_t {
         LOG(log_t::e_log_nomad, "frame");
 
         // run frame callback for all players
-        for (nomad::player_t * player : players_) {
+        for (player::player_t * player : players_) {
             player->on_frame();
         }
 
@@ -94,11 +94,11 @@ struct nomad_t {
     {
         LOGF(log_t::e_log_nomad, "%d", e.uuid_);
 
-        nomad::player_factory_t factory = pending_.pop();
+        player::player_factory_t factory = pending_.pop();
         assert(factory);
-        nomad::game_view_t * view = game_->get_view(e.uuid_);
+        game::game_view_t * view = game_->get_view(e.uuid_);
         assert(view);
-        nomad::player_t * player = factory(view, *stream_.get(), e.uuid_);
+        player::player_t * player = factory(view, *stream_.get(), e.uuid_);
         assert(player);
         players_.push_back(player);
     }
@@ -110,7 +110,7 @@ struct nomad_t {
     }
 
     // when we receive a packet from the event relay
-    void on_packet(const nomad::event_t & e)
+    void on_packet(const event::event_t & e)
     {
 
         // other modules may like to know about frames
@@ -151,7 +151,7 @@ struct nomad_t {
 
             // if we are receiving packets
             if (client_.is_ok()) {
-                nomad::event_t packet;
+                event::event_t packet;
                 while (client_.pending() && client_.recv(packet)) {
                     on_packet(packet);
                 }
@@ -168,7 +168,7 @@ struct nomad_t {
             // give a time slice to each of the players
             {
                 float delta = timer_.delta();
-                for (nomad::player_t * player : players_) {
+                for (player::player_t * player : players_) {
                     assert(player);
                     player->on_tick(delta);
                 }
@@ -185,7 +185,7 @@ struct nomad_t {
     }
 
     // add a player to the current game
-    void add_player(nomad::player_factory_t factory)
+    void add_player(player::player_factory_t factory)
     {
         LOG(log_t::e_log_nomad, "");
         pending_.push(factory);
@@ -220,19 +220,19 @@ struct nomad_t {
     }
 };
 
-void nomad_stream_t::send(const nomad::event_t & e)
+void nomad_stream_t::send(const event::event_t & e)
 {
     nomad_.client_.send(e);
 }
 
 void nomad_stream_t::send(
     const void * src, const size_t size, const uint16_t type,
-    const nomad::player_uuid_t uuid)
+    const uuid::player_uuid_t uuid)
 {
     nomad_.client_.send(src, size, type);  // fixme: uuid
 }
 
-nomad_t * nomad_init(nomad::game_t * game, const char * address, bool host)
+nomad_t * nomad_init(game::game_t * game, const char * address, bool host)
 {
     assert(game);
     std::unique_ptr<nomad_t> nomad(new nomad_t(game));
@@ -249,7 +249,7 @@ void nomad_free(nomad_t * game)
     delete game;
 }
 
-void nomad_add_player(nomad_t * nomad, nomad::player_factory_t factory)
+void nomad_add_player(nomad_t * nomad, player::player_factory_t factory)
 {
     assert(nomad);
     nomad->add_player(factory);

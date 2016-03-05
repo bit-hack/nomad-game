@@ -1,6 +1,7 @@
 #include "../../nomad-net/source/net.h"
 #include "../../nomad-sdk/source/events.h"
-#include "../../nomad-sdk/source/nomad.h"
+#include "../../nomad-sdk/source/objects.h"
+#include "../../nomad-sdk/source/game.h"
 #include "../../nomad-util/source/log.h"
 #include "../../nomad-window/source/window.h"
 #include "player.h"
@@ -29,7 +30,7 @@ struct player_human_layer_t : public window_layer_t {
 
 // the human player class is responsible for receiving events and queues from
 // nomad_t and game_t.
-struct player_human_t : public nomad::player_t {
+struct player_human_t : public player::player_t {
 
     player_human_layer_t layer_;
 
@@ -40,8 +41,9 @@ struct player_human_t : public nomad::player_t {
 
     // ctor
     player_human_t(
-        nomad::game_view_t * view, nomad::stream_t & stream,
-        nomad::player_uuid_t uuid)
+        game::game_view_t * view,
+        player::stream_t & stream,
+        uuid::player_uuid_t uuid)
         : player_t(view, stream, uuid)
         , layer_(this)
     {
@@ -64,7 +66,7 @@ struct player_human_t : public nomad::player_t {
     }
 
     // receipt of an cue event from game_t
-    virtual void on_recv(const nomad::cue_t & cue) override;
+    virtual void on_recv(const game::cue_t & cue) override;
 
     // called in a tight loop indepentend from the logic framerate
     virtual void on_tick(float delta) override;
@@ -101,18 +103,18 @@ bool player_human_layer_t::on_event(window_t *, const window_event_t & event)
     return false;
 }
 
-void player_human_t::on_recv(const nomad::cue_t & cue)
+void player_human_t::on_recv(const game::cue_t & cue)
 {
 }
 
 void player_human_t::on_tick(float delta)
 {
-    std::vector<const nomad::object_t *> found_;
+    std::vector<const object::object_t *> found_;
     {
         geom::rect2i_t area{0, 0, 512, 512};
         view_->query_obj_rect_map(area, found_);
     }
-    for (const nomad::object_t * obj : found_) {
+    for (const object::object_t * obj : found_) {
         window_t::draw().circle(obj->pos_[1], 8, 0x113399);
     }
 }
@@ -122,9 +124,10 @@ void player_human_t::on_frame()
 }
 
 // human player factory function
-nomad::player_t * create_player_human(
-    nomad::game_view_t * view, nomad::stream_t & stream,
-    nomad::player_uuid_t uuid)
+player::player_t * create_player_human(
+    game::game_view_t * view,
+    player::stream_t & stream,
+    uuid::player_uuid_t uuid)
 {
     return new player_human_t(view, stream, uuid);
 }

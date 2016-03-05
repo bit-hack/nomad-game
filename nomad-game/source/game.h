@@ -1,4 +1,4 @@
 #pragma once
-#include "../../nomad-sdk/source/nomad.h"
+#include "../../nomad-sdk/source/game.h"
 
-nomad::game_t * create_game_nomad();
+game::game_t * create_game_nomad();

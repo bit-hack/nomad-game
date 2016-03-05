@@ -102,10 +102,10 @@ bool client_t::pending()
 }
 
 bool client_t::recv(
-    nomad::event_header_t & hdr, void * dst, const size_t max_size)
+    event::event_header_t & hdr, void * dst, const size_t max_size)
 {
 
-    static const int c_hdr_size = sizeof(nomad::event_header_t);
+    static const int c_hdr_size = sizeof(event::event_header_t);
 
     // early exit if client is in error
     if (socket_ == INVALID_SOCKET)
@@ -143,13 +143,13 @@ bool client_t::send(const void * src, const size_t size, const uint32_t type)
     if (socket_ == INVALID_SOCKET)
         return !(error_ = true);
 
-    nomad::event_header_t hdr;
+    event::event_header_t hdr;
     hdr.size_     = uint16_t(size);
     hdr.type_     = type;
     hdr.checksum_ = src ? checksum((const uint8_t *)src, size) : -1;
 
     // send off the packet header
-    int r = ::send(socket_, (char *)&hdr, sizeof(nomad::event_header_t), 0);
+    int r = ::send(socket_, (char *)&hdr, sizeof(event::event_header_t), 0);
     if (r == SOCKET_ERROR || r != sizeof(hdr)) {
         LOGF(log_t::e_log_net, "socket send() error");
         return !(error_ = true);
@@ -220,13 +220,13 @@ bool client_t::connect(const uint8_t ip[4], const uint16_t port)
     return !error_;
 }
 
-bool client_t::send(const nomad::event_t & src)
+bool client_t::send(const event::event_t & src)
 {
 
     if (socket_ == INVALID_SOCKET)
         return !(error_ = true);
 
-    nomad::event_header_t hdr;
+    event::event_header_t hdr;
     hdr.size_     = src.header_.size_;
     hdr.type_     = src.header_.type_;
     hdr.checksum_ = checksum((const uint8_t *)src.body_.data(), hdr.size_);

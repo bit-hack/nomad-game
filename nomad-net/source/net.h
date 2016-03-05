@@ -3,7 +3,8 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "../../nomad-sdk/source/nomad.h"
+#include "../../nomad-sdk/source/game.h"
+#include "../../nomad-sdk/source/events.h"
 
 namespace net
 {
@@ -33,11 +34,11 @@ struct client_t {
 
     bool pending();
 
-    bool recv(nomad::event_header_t & hdr, void * dst, const size_t max_size);
+    bool recv(event::event_header_t & hdr, void * dst, const size_t max_size);
 
     bool send(const void * src, const size_t size, const uint32_t type);
 
-    bool send(const nomad::event_t & src);
+    bool send(const event::event_t & src);
 
     bool connect(const char * address);
 
@@ -49,7 +50,7 @@ struct client_t {
         return send((const void *)&src, sizeof(type_t), type_t::type());
     }
 
-    bool recv(nomad::event_t & out)
+    bool recv(event::event_t & out)
     {
         return recv(out.header_, out.body_.data(), out.body_.size());
     }

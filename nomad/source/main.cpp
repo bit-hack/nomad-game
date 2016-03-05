@@ -1,7 +1,7 @@
 #include <assert.h>
 
 #include "../../nomad-util/source/sdl.h"
-#include "../../nomad-sdk/source/nomad.h"
+#include "../../nomad-sdk/source/game.h"
 #include "../../nomad/source/nomad.h"
 #include "../../nomad-human/source/player.h"
 #include "../../nomad-ai/source/player.h"
@@ -28,7 +28,7 @@ int main(int argc, const char ** args)
     bool host = (strncmp(args[2], "true", 4) == 0);
 
     // create the game code instance
-    nomad::game_t * game = create_game_nomad();
+    game::game_t * game = create_game_nomad();
     if (!game) {
         LOG(log_t::e_log_nomad, "create_game_nomad failed");
         return -1;

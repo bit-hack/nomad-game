@@ -18,11 +18,11 @@ namespace server
 
 struct player_t {
 
-    nomad::player_uuid_t uuid_;
+    uuid::player_uuid_t uuid_;
     uint8_t              nick_[16];
     bool                 ready_;
 
-    player_t(nomad::player_uuid_t uuid)
+    player_t(uuid::player_uuid_t uuid)
         : ready_(false)
         , uuid_(uuid)
     {
@@ -173,7 +173,7 @@ struct server_t {
     }
 
     // send a received message to all connected clients
-    bool relay(const nomad::event_t & event)
+    bool relay(const event::event_t & event)
     {
         for (peer_t & client : clients_)
             if (!client.send(event))
@@ -258,7 +258,7 @@ struct server_t {
 
     // we have received an event from a client, so we dispatch it based on its
     // type.  some events are server only and others relayed to all clients.
-    bool recv_event(peer_t & client, const nomad::event_t & event)
+    bool recv_event(peer_t & client, const event::event_t & event)
     {
         // filter out events being sent to the server specifically
         switch (event.header_.type_) {
@@ -284,7 +284,7 @@ struct server_t {
     // poll all sockets and read any events that are available.
     bool poll_sockets()
     {
-        nomad::event_t event;
+        event::event_t event;
 
         // read from all sockets
         for (peer_t & client : clients_) {

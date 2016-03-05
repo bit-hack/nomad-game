@@ -1,7 +1,9 @@
 #pragma once
-#include "../../nomad-sdk/source/nomad.h"
+#include "../../nomad-sdk/source/game.h"
+#include "../../nomad-sdk/source/player.h"
 
 // human player factory function
-nomad::player_t * create_player_human(
-    nomad::game_view_t * view, nomad::stream_t & stream,
-    nomad::player_uuid_t uuid);
+player::player_t * create_player_human(
+    game::game_view_t * view,
+    player::stream_t & stream,
+    uuid::player_uuid_t uuid);
