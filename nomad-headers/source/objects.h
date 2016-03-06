@@ -36,6 +36,11 @@ struct object_t {
     uint32_t       ref_;     // reference count
     geom::vec2i_t  pos_[2];  // object position
 
+    //
+    bool alive() const {
+        return ref_>0;
+    }
+
     // checked downcast
     template <typename type_t>
     type_t & cast()

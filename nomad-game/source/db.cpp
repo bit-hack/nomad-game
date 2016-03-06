@@ -33,10 +33,12 @@ object::object_ref_t db_t::find(uuid::object_uuid_t id)
 void db_t::on_frame()
 {
     typedef std::pair<const uuid::object_uuid_t, object::object_t *> pair_t;
+
     for (auto it = obj_map_.begin(); it!=obj_map_.end(); ++it) {
         object::object_t * obj = it->second;
         assert(obj);
-        if (obj->ref_==0) {
+        if (!obj->alive()) {
+            delete obj;
             it = obj_map_.erase(it);
         }
         else {
