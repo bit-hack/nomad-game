@@ -14,8 +14,8 @@ AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakTemplateDeclarations: 'true'
-BinPackArguments: 'true'
-BinPackParameters: 'true'
+BinPackArguments: 'false'
+BinPackParameters: 'false'
 BreakBeforeBraces: Linux
 BreakConstructorInitializersBeforeComma: 'true'
 ColumnLimit: '80'

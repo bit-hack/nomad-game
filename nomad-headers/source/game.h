@@ -72,15 +72,15 @@ struct game_view_t {
     // query for objects in a rectangular region
     virtual bool query_obj_rect_map(
         const geom::rect2i_t & in,
-        std::vector<const object::object_t *> & out) = 0;
+        std::vector<object::object_ref_t> & out) = 0;
 
     // query for objects in a given radius
     virtual bool query_obj_radius_map(
-        const geom::rect2i_t & in, const float radius,
-        std::vector<const object::object_t *> & out) = 0;
+        const geom::vec2i_t & in, const int32_t radius,
+        std::vector<object::object_ref_t> & out) = 0;
 
     // lookup object via its uuid
-    virtual const object::object_t * lookup(uuid::object_uuid_t uuid) = 0;
+    virtual const object::object_ref_t lookup(uuid::object_uuid_t uuid) = 0;
 
     // get map tile information
     virtual bool get_map_info(const geom::rect2i_t & in, map_info_t & out) = 0;

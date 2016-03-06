@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../nomad-util/source/ref.h"
+
 namespace event {
 struct event_header_t;
 struct event_t;
@@ -8,7 +10,7 @@ struct event_t;
 namespace object
 {
 struct object_t;
-struct object_ref_t;
+typedef ref_t<object_t> object_ref_t;
 } // namespace object
 
 namespace game

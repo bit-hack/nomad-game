@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <array>
 
 template <typename type_t, size_t size>
 struct stack_t {
@@ -7,13 +8,13 @@ struct stack_t {
     std::array<type_t, size> item_;
     size_t head_;
 
-    type_t & operator -> ()
+    type_t & top()
     {
         assert(head_);
         return item_[head_-1];
     }
 
-    const type_t & operator -> () const
+    const type_t & top() const
     {
         assert(head_);
         return item_[head_-1];
@@ -36,8 +37,13 @@ struct stack_t {
         head_ = 0;
     }
 
-    bool is_empty() const
+    bool empty() const
     {
         return head_ == 0;
+    }
+
+    bool ifull() const
+    {
+        return head_>=item_.size();
     }
 };

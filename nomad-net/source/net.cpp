@@ -104,7 +104,6 @@ bool client_t::pending()
 bool client_t::recv(
     event::event_header_t & hdr, void * dst, const size_t max_size)
 {
-
     static const int c_hdr_size = sizeof(event::event_header_t);
 
     // early exit if client is in error
@@ -139,7 +138,6 @@ bool client_t::recv(
 
 bool client_t::send(const void * src, const size_t size, const uint32_t type)
 {
-
     if (socket_ == INVALID_SOCKET)
         return !(error_ = true);
 
@@ -177,7 +175,12 @@ bool client_t::connect(const char * address)
     uint16_t port = 0;
     // extract each field
     int r = sscanf(
-        address, "%hhu.%hhu.%hhu.%hhu:%hu", &ip[0], &ip[1], &ip[2], &ip[3],
+        address,
+        "%hhu.%hhu.%hhu.%hhu:%hu",
+        &ip[0],
+        &ip[1],
+        &ip[2],
+        &ip[3],
         &port);
     // if we parsed all arguments
     return (r == 5) ? connect(ip, port) : false;
@@ -185,7 +188,6 @@ bool client_t::connect(const char * address)
 
 bool client_t::connect(const uint8_t ip[4], const uint16_t port)
 {
-
     sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -205,7 +207,10 @@ bool client_t::connect(const uint8_t ip[4], const uint16_t port)
     {
         timeval timeout = {8, 0};
         if (setsockopt(
-                socket_, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
+                socket_,
+                SOL_SOCKET,
+                SO_RCVTIMEO,
+                (char *)&timeout,
                 sizeof(timeval))) {
             LOG(log_t::e_log_net, "unable to set timeout");
         }
@@ -222,7 +227,6 @@ bool client_t::connect(const uint8_t ip[4], const uint16_t port)
 
 bool client_t::send(const event::event_t & src)
 {
-
     if (socket_ == INVALID_SOCKET)
         return !(error_ = true);
 

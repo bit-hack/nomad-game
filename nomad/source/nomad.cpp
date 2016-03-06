@@ -165,6 +165,8 @@ struct nomad_t {
                 }
             }
 
+            window_t::draw().fill(0x101010);
+
             // give a time slice to each of the players
             {
                 float delta = timer_.delta();
@@ -173,9 +175,6 @@ struct nomad_t {
                     player->on_tick(delta);
                 }
             }
-
-            window_t::draw().fill(0x101010);
-            window_t::draw().circle(geom::vec2i_t{64, 64}, 8, 0x909090);
 
             // tick the main game window
             if (!window_t::inst().tick()) {

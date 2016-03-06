@@ -8,7 +8,7 @@ struct player_ai_t : player::player_t {
 
     player_ai_t(
         game::game_view_t * view,
-        player::stream_t & stream,
+        player::stream_t &  stream,
         uuid::player_uuid_t uuid)
         : player_t(view, stream, uuid)
     {
@@ -26,13 +26,13 @@ struct player_ai_t : player::player_t {
     }
 
     virtual void on_frame() override
-    { /*LOG("");*/
+    {
     }
 };
 
 player::player_t * create_player_ai(
     game::game_view_t * view,
-    player::stream_t & stream,
+    player::stream_t &  stream,
     uuid::player_uuid_t uuid)
 {
     return new player_ai_t(view, stream, uuid);

@@ -8,6 +8,7 @@ target_link_libraries(nomad PUBLIC
     nomad-human
     nomad-ai
     nomad-net
+    nomad-objects
     nomad-util
     nomad-window
     nomad-server

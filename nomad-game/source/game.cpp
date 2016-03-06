@@ -1,102 +1,54 @@
 #include "game.h"
+#include "db.h"
+#include "factory.h"
+#include "game_view.h"
+
 #include "../../nomad-headers/source/game.h"
 #include "../../nomad-headers/source/events.h"
 #include "../../nomad-headers/source/objects.h"
 #include "../../nomad-util/source/log.h"
+#include "../../nomad-util/source/numeric.h"
+#include "../../nomad-objects/source/villager.h"
 
-struct controller_t {
-    object::object_t & self;
+// ctor
+nomad_game_t::nomad_game_t()
+    : db_(*this)
+    , factory_(*this)
+{
+}
 
-    void think()
-    {
+// called for each frame packet received
+void nomad_game_t::on_frame(const event::game_frame_t & e)
+{
+    // tick all actors in the database
+    db_.on_frame();
+}
+
+void nomad_game_t::on_begin(const event::game_begin_t & e)
+{
+    LOGF(log_t::e_log_game, "game begin { seed=%u }", e.seed_);
+    seed_ = e.seed_;
+
+    for (uint32_t i = 0; i < 16; ++i) {
+
+        geom::vec2i_t pos = {numeric::rand64(seed_) % 320,
+                             numeric::rand64(seed_) % 240};
+
+        object::object_ref_t obj =
+            factory_.create_object(object::class_t::e_villager, pos);
+
+        obj_villager_t & v = obj->cast<obj_villager_t>();
+        v.player_          = i / 4;
     }
-};
+}
 
-struct nomad_game_t : public game::game_t {
-    std::vector<object::object_t *> objects_;
-
-    // ctor
-    nomad_game_t()
-        : objects_()
-    {
+void nomad_game_t::recv(const event::event_t & e)
+{
+    switch (e.header_.type_) {
+    case (event::e_game_frame): on_frame(e.get<event::game_frame_t>()); break;
+    case (event::e_game_begin): on_begin(e.get<event::game_begin_t>()); break;
     }
-
-    // called for each frame packet received
-    void on_frame(const event::game_frame_t & e)
-    {
-    }
-
-    void on_begin(const event::game_begin_t & e)
-    {
-        LOGF(log_t::e_log_game, "game begin { seed=%u }", e.seed_);
-    }
-
-    virtual void recv(const event::event_t & e) override
-    {
-        switch (e.header_.type_) {
-        case (event::e_game_frame):
-            on_frame(e.get<event::game_frame_t>());
-            break;
-        case (event::e_game_begin):
-            on_begin(e.get<event::game_begin_t>());
-            break;
-        }
-    }
-
-    virtual game::game_view_t * get_view(uuid::player_uuid_t uuid) override;
-};
-
-struct nomad_game_view_t : public game::game_view_t {
-
-    nomad_game_t & ngame_;
-
-    // ctor
-    nomad_game_view_t(nomad_game_t * game, uuid::player_uuid_t uuid)
-        : ngame_(*game)
-        , game::game_view_t(*game, uuid)
-    {
-    }
-
-    // query for objects in a rectangular region
-    virtual bool query_obj_rect_map(
-        const geom::rect2i_t &                 in,
-        std::vector<const object::object_t *> & out) override
-    {
-        for (object::object_t * obj : ngame_.objects_) {
-            assert(obj);
-            if (geom::inside(in, obj->pos_[1])) {
-                out.push_back(obj);
-            }
-        }
-        return true;
-    }
-
-    // query for objects in a given radius
-    virtual bool query_obj_radius_map(
-        const geom::rect2i_t & in, const float radius,
-        std::vector<const object::object_t *> & out) override
-    {
-        return false;
-    }
-
-    // get map tile information
-    virtual bool get_map_info(
-        const geom::rect2i_t & in, game::map_info_t & out) override
-    {
-        return false;
-    }
-
-    // lookup and object by its uuid
-    virtual const object::object_t * lookup(uuid::object_uuid_t uuid) override
-    {
-        for (object::object_t * obj : ngame_.objects_) {
-            assert(obj);
-            if (obj->uuid_ == uuid)
-                return obj;
-        }
-        return nullptr;
-    }
-};
+}
 
 // nomad game factory function
 game::game_t * create_game_nomad()

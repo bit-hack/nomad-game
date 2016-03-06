@@ -4,6 +4,9 @@
 #include "../../nomad-headers/source/game.h"
 #include "../../nomad-util/source/log.h"
 #include "../../nomad-window/source/window.h"
+
+#include "../../nomad-objects/source/villager.h"
+
 #include "player.h"
 
 struct player_human_t;
@@ -55,7 +58,7 @@ struct player_human_t : public player::player_t {
         window_t::inst().add_layer(&layer_);
     }
 
-    //
+    // 
     void send_player_state()
     {
         event::player_state_t e;
@@ -109,13 +112,24 @@ void player_human_t::on_recv(const game::cue_t & cue)
 
 void player_human_t::on_tick(float delta)
 {
-    std::vector<const object::object_t *> found_;
+    std::vector<object::object_ref_t> found_;
     {
         geom::rect2i_t area{0, 0, 512, 512};
         view_->query_obj_rect_map(area, found_);
     }
-    for (const object::object_t * obj : found_) {
-        window_t::draw().circle(obj->pos_[1], 8, 0x113399);
+    for (const object::object_ref_t & obj : found_) {
+
+        uint32_t rgb = 0x113399;
+
+        if (obj->type_==object::class_t::e_villager) {
+            obj_villager_t & v = obj->cast<obj_villager_t>();
+            if (v.player_==uuid_) {
+                rgb = 0x4466CC;
+            }
+        }
+        
+        window_t::draw().circle(obj->pos_[1], 4, rgb);
+
     }
 }
 
