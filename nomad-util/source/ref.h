@@ -44,7 +44,7 @@ struct ref_t {
             return;
         if (--(obj_->ref_) > 0)
             return;
-        delete obj_;
+//        delete obj_;
         obj_ = nullptr;
     }
 

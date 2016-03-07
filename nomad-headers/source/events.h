@@ -26,6 +26,8 @@ enum type_t {
 
     e_game_pause,  // pause/resume the game (toggles)
     e_game_frame,  // advance game_t one tick
+
+    e_object_move,
 };
 
 // every game event has a header which encapsulates and abstracts the different
@@ -49,49 +51,38 @@ struct event_t {
     const type_t & get() const
     {
         assert(header_.size_ == sizeof(type_t));
-        assert(header_.type_ == type_t::type());
+        assert(header_.type_ == type_t::type);
         return *reinterpret_cast<const type_t *>(body_.data());
+    }
+
+    uint16_t type() const {
+        return header_.type_;
     }
 };
 
 struct receive_uuid_t {
-    uint16_t      uuid_;
-    static type_t type()
-    {
-        return e_recive_uuid;
-    }
+    uint16_t            uuid_;
+    static const type_t type = e_recive_uuid;
 };
 
 struct ping_t {
-    uint32_t      data_;
-    static type_t type()
-    {
-        return e_ping;
-    }
+    uint32_t            data_;
+    static const type_t type = e_ping;
 };
 
 struct game_frame_t {
-    uint32_t      data_;
-    static type_t type()
-    {
-        return e_game_frame;
-    }
+    uint32_t            data_;
+    static const type_t type = e_game_frame;
 };
 
 struct game_begin_t {
-    uint64_t      seed_;
-    static type_t type()
-    {
-        return e_game_begin;
-    }
+    uint64_t            seed_;
+    static const type_t type = e_game_begin;
 };
 
 struct player_joined_t {
     uuid::player_uuid_t uuid_;
-    static type_t       type()
-    {
-        return e_player_joined;
-    }
+    static const type_t type = e_player_joined;
 };
 
 // when the player state changes this gets broadcast
@@ -99,10 +90,13 @@ struct player_state_t {
     uuid::player_uuid_t uuid_;
     bool                ready_;
     char                nick_[16];
-    static type_t       type()
-    {
-        return e_player_state;
-    }
+    static const type_t type = e_player_state;
+};
+
+struct object_move_t {
+    uuid::object_uuid_t uuid_;
+    int32_t             x_, y_;
+    static const type_t type = e_object_move;
 };
 
 }  // namespace event

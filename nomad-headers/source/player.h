@@ -26,7 +26,7 @@ struct stream_t {
     template <typename type_t>
     void send(const type_t & t, uuid::player_uuid_t uuid)
     {
-        send((const void *)&t, sizeof(type_t), type_t::type(), uuid);
+        send((const void *)&t, sizeof(type_t), type_t::type, uuid);
     }
 };
 

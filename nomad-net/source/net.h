@@ -47,7 +47,7 @@ struct client_t {
     template <typename type_t>
     bool send(const type_t & src)
     {
-        return send((const void *)&src, sizeof(type_t), type_t::type());
+        return send((const void *)&src, sizeof(type_t), type_t::type);
     }
 
     bool recv(event::event_t & out)

@@ -67,7 +67,7 @@ struct nomad_t {
         , players_()
         , stream_(new nomad_stream_t(*this))
         , active_(true)
-        , timer_(1000)
+        , timer_(100)
     {
     }
 
@@ -174,12 +174,13 @@ struct nomad_t {
                     assert(player);
                     player->on_tick(delta);
                 }
+
+                // tick the main game window
+                if (!window_t::inst().tick(delta)) {
+                    active_ = false;
+                }
             }
 
-            // tick the main game window
-            if (!window_t::inst().tick()) {
-                active_ = false;
-            }
         }
     }
 

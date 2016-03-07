@@ -22,7 +22,7 @@ struct object_t {
     object_t(uint32_t uuid, class_t type)
         : uuid_(uuid)
         , type_(type)
-        , ref_(0)
+        , ref_(1)
     {
     }
 

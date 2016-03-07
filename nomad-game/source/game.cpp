@@ -24,6 +24,7 @@ void nomad_game_t::on_frame(const event::game_frame_t & e)
     db_.on_frame();
 }
 
+// all players are ready and the game will begin
 void nomad_game_t::on_begin(const event::game_begin_t & e)
 {
     LOGF(log_t::e_log_game, "game begin { seed=%u }", e.seed_);
@@ -42,11 +43,20 @@ void nomad_game_t::on_begin(const event::game_begin_t & e)
     }
 }
 
+// receive an event from the event relay
 void nomad_game_t::recv(const event::event_t & e)
 {
+    using namespace event;
+
     switch (e.header_.type_) {
-    case (event::e_game_frame): on_frame(e.get<event::game_frame_t>()); break;
-    case (event::e_game_begin): on_begin(e.get<event::game_begin_t>()); break;
+    case (e_game_frame): on_frame(e.get<game_frame_t>()); break;
+    case (e_game_begin): on_begin(e.get<game_begin_t>()); break;
+    case (e_object_move) : {
+        const auto & emove = e.get<object_move_t>();
+        object::object_ref_t obj = db_.find(emove.uuid_);
+        assert(obj);
+        obj->on_event(*this, e);
+    }
     }
 }
 

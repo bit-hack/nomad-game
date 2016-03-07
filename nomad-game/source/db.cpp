@@ -77,6 +77,10 @@ bool db_t::query_obj_radius_map(
     typedef std::pair<uuid::object_uuid_t, object::object_ref_t> pair_t;
     for (auto pair : obj_map_) {
         auto pos = pair.second->pos_[1];
+        auto dist = geom::distance_sqr(pos, in);
+        if (dist<(radius*radius)) {
+            out.push_back(pair.second);
+        }
     }
     return true;
 }

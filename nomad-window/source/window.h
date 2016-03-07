@@ -42,13 +42,26 @@ enum {
 struct window_event_t {
 
     struct mouse_t {
-        int32_t         x, y;
+
+        enum {
+            // lmb
+            e_lmb_down    = 0x01,
+            e_lmb_click   = 0x02,
+            e_lmb_release = 0x04,
+            // rmb
+            e_rmb_down    = 0x08,
+            e_rmb_click   = 0x10,
+            e_rmb_release = 0x20,
+        };
+
+        int32_t          x, y;
+        int32_t          flags_;
         static const int type = 0;
     };
 
     struct key_t {
-        bool            down_;
-        uint8_t         key_;
+        bool             down_;
+        uint8_t          key_;
         static const int type = 1;
     };
 
@@ -72,7 +85,7 @@ struct window_layer_t {
     }
 
     // bottom to top draw ordering
-    virtual void on_draw(struct window_t *) = 0;
+    virtual void on_draw(struct window_t *, float delta) = 0;
 
     // top to bottom event ordering, return true for handled event
     virtual bool on_event(struct window_t *, const window_event_t & event) = 0;
@@ -80,6 +93,12 @@ struct window_layer_t {
 
 // handles all game window operations
 struct window_t {
+
+    struct {
+        int32_t x_, y_;
+        uint8_t prev_buttons_;
+    } mouse_;
+
     window_draw_t draw_;
 
     static window_t & inst()
@@ -99,9 +118,10 @@ struct window_t {
     bool init(uint32_t width, uint32_t height);
     void free();
 
-    bool tick();
+    bool tick(float delta);
 
    private:
+    void do_mouse();
     void dispatch_event(const window_event_t & event);
 
     struct detail_t;

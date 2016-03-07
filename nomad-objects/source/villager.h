@@ -30,8 +30,9 @@ struct obj_villager_t : public fsm_t<obj_villager_t>, object::object_t {
 
     // state machine states
 
-    void on_frame_walk();
-    void on_frame_idle();
+    void on_frame_walk(nomad_game_t &);
+    void on_frame_idle(nomad_game_t &);
+    void on_event_root(nomad_game_t &, const event::event_t &);
 
     static const fsm_state_t<obj_villager_t> fs_walking;
     static const fsm_state_t<obj_villager_t> fs_idle;

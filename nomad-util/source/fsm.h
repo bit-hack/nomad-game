@@ -2,6 +2,13 @@
 #include <assert.h>
 #include "stack.h"
 
+namespace
+{
+struct event_t;
+}  // namespace {}
+
+struct nomad_game_t;
+
 template <typename type_t>
 struct fsm_state_t {
 
@@ -10,8 +17,9 @@ struct fsm_state_t {
     typedef void (type_t::*on_yield_t)(void);
     typedef void (type_t::*on_resume_t)(void);
 
-    typedef void (type_t::*on_tick_t)(void);
-    typedef void (type_t::*on_event_t)(void);
+    typedef void (type_t::*on_tick_t)(nomad_game_t &);
+    typedef void (type_t::*on_event_t)(
+        nomad_game_t &, const event::event_t & event);
 
     fsm_state_t(
         on_begin_t  begin,
@@ -53,16 +61,17 @@ struct fsm_state_t {
             (obj.*(on_end_))();
     }
 
-    void on_tick(type_t & obj) const
+    void on_tick(type_t & obj, nomad_game_t & game) const
     {
         if (on_tick_)
-            (obj.*(on_tick_))();
+            (obj.*(on_tick_))(game);
     }
 
-    void on_event(type_t & obj) const
+    void on_event(
+        type_t & obj, nomad_game_t & game, const event::event_t & event) const
     {
         if (on_event_)
-            (obj.*(on_event_))();
+            (obj.*(on_event_))(game, event);
     }
 
    protected:
@@ -88,17 +97,17 @@ struct fsm_t {
     {
     }
 
-    void on_tick()
+    void on_tick(nomad_game_t & game)
     {
         if (!state_.empty()) {
-            state_.top()->on_tick(self_);
+            state_.top()->on_tick(self_, game);
         }
     }
 
-    void on_event()
+    void on_event(nomad_game_t & game, const event::event_t & event)
     {
         if (!state_.empty()) {
-            state_.top()->on_event(self_);
+            state_.top()->on_event(self_, game, event);
         }
     }
 

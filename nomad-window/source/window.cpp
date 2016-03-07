@@ -10,8 +10,10 @@ namespace
 
 // blit the game render buffer to the SDL window surface with a 2X upscale
 void blit2x(
-    const uint32_t * src, const uint32_t src_width, const uint32_t src_height,
-    uint32_t * dst)
+    const uint32_t * src,
+    const uint32_t   src_width,
+    const uint32_t   src_height,
+    uint32_t *       dst)
 {
     const uint32_t dst_width = src_width * 2;
     for (uint32_t y = 0; y < src_height; ++y) {
@@ -73,6 +75,7 @@ struct window_t::detail_t {
 window_t::window_t()
     : detail_(new detail_t)
 {
+    mouse_.prev_buttons_ = SDL_GetMouseState(&mouse_.x_, &mouse_.y_);
 }
 
 bool window_t::init(uint32_t width, uint32_t height)
@@ -101,7 +104,35 @@ void window_t::free()
     detail_->surface_ = nullptr;
 }
 
-bool window_t::tick()
+void window_t::do_mouse()
+{
+    window_event_t::mouse_t m;
+    uint8_t                 b = SDL_GetMouseState(&m.x, &m.y);
+    window_event_t          e;
+    e.mouse_ = &m;
+    e.type_  = m.type;
+
+    m.x /= 2;
+    m.y /= 2;
+
+    int32_t ldif = ((SDL_BUTTON_LMASK & mouse_.prev_buttons_) != 0) -
+                   ((SDL_BUTTON_LMASK & b) != 0);
+    int32_t rdif = ((SDL_BUTTON_RMASK & mouse_.prev_buttons_) != 0) -
+                   ((SDL_BUTTON_RMASK & b) != 0);
+    mouse_.prev_buttons_ = b;
+
+    m.flags_ = 0;
+    m.flags_ |= (SDL_BUTTON_LMASK & b) ? m.e_lmb_down : 0;
+    m.flags_ |= (SDL_BUTTON_RMASK & b) ? m.e_rmb_down : 0;
+    m.flags_ |= (ldif == -1) ? m.e_lmb_click : 0;
+    m.flags_ |= (rdif == -1) ? m.e_rmb_click : 0;
+    m.flags_ |= (ldif == 1) ? m.e_lmb_release : 0;
+    m.flags_ |= (rdif == 1) ? m.e_rmb_release : 0;
+
+    dispatch_event(e);
+}
+
+bool window_t::tick(float delta)
 {
 
     // poll all of the window events
@@ -124,26 +155,21 @@ bool window_t::tick()
     }
 
     // mouse event is always dispatched
-    {
-        window_event_t::mouse_t m;
-        uint8_t                 b = SDL_GetMouseState(&m.x, &m.y);
-        window_event_t          e;
-        e.mouse_ = &m;
-        e.type_  = m.type;
-        dispatch_event(e);
-    }
+    do_mouse();
 
     // process all layers
     for (window_layer_t * layer : detail_->layers_) {
         if (!layer)
             break;
         if (layer->visible_)
-            layer->on_draw(this);
+            layer->on_draw(this, delta);
     }
 
     // blit our surface to the screen
     blit2x(
-        draw_.pixels_, draw_.width_, draw_.height_,
+        draw_.pixels_,
+        draw_.width_,
+        draw_.height_,
         (uint32_t *)detail_->surface_->pixels);
     SDL_Flip(detail_->surface_);
 

@@ -33,5 +33,6 @@ object::object_t * factory_t::create_object(
     obj->pos_[1] = pos;
 
     game_.db_.insert(obj);
+    obj->on_spawn(game_);
     return obj;
 }
